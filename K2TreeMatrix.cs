@@ -8,6 +8,6 @@ namespace HausdorfDistanceProject
 {
     internal class K2TreeMatrix
     {
-        BitArrayExtension bitMatrix;
+        public BitArrayExtension bitMatrix;
     }
 }

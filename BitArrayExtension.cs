@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.ComponentModel.DataAnnotations;
 
 namespace HausdorfDistanceProject
 {
@@ -7,10 +8,10 @@ namespace HausdorfDistanceProject
         public BitArrayExtension(BitArray bits , int length) 
         {
             this.bits = bits;
-            this.length = length;
+            this.Length = length;
         }
-        private int length;
+        public int Length { private set; get; }
         private BitArray bits;
-        public bool this[int x, int y] { get => bits[x * length + y];set => bits[x * length + y] = value; }
+        public bool this[int x, int y] { get => bits[x * Length + y];set => bits[x * Length + y] = value; }
     }
 }
