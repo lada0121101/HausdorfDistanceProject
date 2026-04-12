@@ -89,5 +89,81 @@ namespace HausdorfDistanceProject
         {
             return Math.Sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
         }
+
+        public double MaxMaxDist(K2TreeNode a, K2TreeNode b)
+        {
+            var pairs = new HashSet<((double, double), (double, double))> (){ 
+                ((a.minx,a.miny),(b.maxx,b.maxy)),
+                ((a.minx,a.maxy) ,(b.maxx,a.miny)),
+                ((a.maxx, a.miny) , (b.minx, b .maxy)),
+                ((a.maxx, a.maxy) , (b.minx, b .miny)),
+            };
+            return pairs.Max(pair => Dist(pair.Item1, pair.Item2));
+
+        }
+        public double HDKP2(K2TreeNode a, K2TreeNode b)
+        {
+            var cmax = 0.0;
+            var d = Math.Max(a.maxx, b.maxx) * Math.Sqrt(2);
+            var pQ = new PriorityQueue<K2TreeNode, double>(Comparer<double>.Create((double x, double y) => x > y ? -1 : x < y ? 1 : 0));
+            pQ.Enqueue(a, d);
+            while (pQ.Count != 0)
+            {
+                K2TreeNode e;
+                double dist;
+                var OK = pQ.TryDequeue(out e,out dist);
+                if (dist <= cmax)
+                    return cmax;
+                if (IsLeaf(e)) 
+                {
+                    var nn = NNMax(b, (e.maxx, e.maxy), cmax, Double.PositiveInfinity);
+                    if (nn > cmax)
+                        cmax = nn;
+                }
+                else
+                {
+                    foreach(var h in e.childs)
+                    {
+                        if(h.childs.Count != 0)
+                        {
+                            var dh = IsCandidate(h, b, cmax);
+                            if (dh != -1)
+                                pQ.Enqueue(h, dh);
+                        }
+                    }
+                }
+            }
+            return cmax;
+        }
+
+        private double IsCandidate(K2TreeNode R , K2TreeNode b, double cmax)
+        {
+            var pR = new PriorityQueue<K2TreeNode, double>();
+            var d = MaxMaxDist(R, b);
+            pR.Enqueue(R, d);
+            while (pR.Count != 0)
+            {
+                K2TreeNode e;
+                double dist;
+                var OK = pR.TryDequeue(out e, out dist);
+                if (IsLeaf(e))
+                    return dist;
+                else
+                {
+                    foreach(var h in e.childs)
+                    {
+                        if(h.childs.Count!= 0)
+                        {
+                            var maxDist = MaxMaxDist(R, h);
+                            if (maxDist <= cmax)
+                                return -1;
+                            else
+                                pR.Enqueue(h, maxDist);
+                        }
+                    }
+                }
+            }
+            return -1;
+        }
     }
 }
